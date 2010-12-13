@@ -103,7 +103,6 @@ class Album(dict):
 		else:
 			self.__setitem__('artist', artist )
 		self.all_file_infos = all_file_infos
-		#self.__setitem__('files', artist )
 
 	@property
 	def title(s):
@@ -187,18 +186,15 @@ class EnqueueAlbum (AlbumAction):
 class MpdAlbumSource (Source):
 	def __init__(self):
 		Source.__init__( self, _("Albums"))
-		try:
-			client = getClient()
-			file_infos = [client.listallinfo(x['file'])[0] for x in filter( lambda x: 'file' in x , client.listall() ) ]
-			filtered_file_infos = filter( lambda f: 'artist' in f and 'album' in f , file_infos)
-			albums = [Album(x['album'],x['artist'],filtered_file_infos) for x in filtered_file_infos ]
-			albums.sort()
-			self.albums = uniqify(albums)
-		except:
-			self.albums = []
 
 	def get_items(self):
-		for album in self.albums:
+		client = getClient()
+		file_infos = [client.listallinfo(x['file'])[0] for x in filter( lambda x: 'file' in x , client.listall() ) ]
+		filtered_file_infos = filter( lambda f: 'artist' in f and 'album' in f , file_infos)
+		albums = [Album(x['album'],x['artist'],filtered_file_infos) for x in filtered_file_infos ]
+		albums.sort()
+		pretty.print_debug(__name__, 'Got %d items'%len(albums) )
+		for album in uniqify(albums):
 			yield AlbumLeaf(album)
 
 	def should_sort_lexically(self):
