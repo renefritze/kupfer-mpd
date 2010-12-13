@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
 __kupfer_name__ = _("music player daemon")
@@ -186,12 +187,15 @@ class EnqueueAlbum (AlbumAction):
 class MpdAlbumSource (Source):
 	def __init__(self):
 		Source.__init__( self, _("Albums"))
-		client = getClient()
-		file_infos = [client.listallinfo(x['file'])[0] for x in filter( lambda x: 'file' in x , client.listall() ) ]
-		filtered_file_infos = filter( lambda f: 'artist' in f and 'album' in f , file_infos)
-		albums = [Album(x['album'],x['artist'],filtered_file_infos) for x in filtered_file_infos ]
-		albums.sort()
-		self.albums = uniqify(albums)
+		try:
+			client = getClient()
+			file_infos = [client.listallinfo(x['file'])[0] for x in filter( lambda x: 'file' in x , client.listall() ) ]
+			filtered_file_infos = filter( lambda f: 'artist' in f and 'album' in f , file_infos)
+			albums = [Album(x['album'],x['artist'],filtered_file_infos) for x in filtered_file_infos ]
+			albums.sort()
+			self.albums = uniqify(albums)
+		except:
+			self.albums = []
 
 	def get_items(self):
 		for album in self.albums:
